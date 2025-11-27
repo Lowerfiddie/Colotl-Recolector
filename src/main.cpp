@@ -67,8 +67,8 @@ void setup() {
     
     // Ajustes del sensor
     sensor_t * s = esp_camera_sensor_get();
-    s->set_vflip(s, 1); // Ajustar según orientación física
-    s->set_brightness(s, 1);
+    s->set_vflip(s, 0); // Ajustar según orientación física
+    s->set_brightness(s, 0);
     s->set_contrast(s, 1);
     s->set_saturation(s, 2);
 

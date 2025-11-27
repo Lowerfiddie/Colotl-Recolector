@@ -93,8 +93,8 @@ void run_inference_cycle(uint8_t* snapshot_buf) {
     for (uint32_t i = 0; i < result.bounding_boxes_count; i++) {
         ei_impulse_result_bounding_box_t bb = result.bounding_boxes[i];
         
-        // FILTRO ORIGINAL: Solo ignorar si valor es 0
-        if (bb.value == 0) continue; 
+        // Filtro de rango de confianza
+        if (bb.value >= 0.6) continue; 
         
         ei_printf("  %s (%f) [ x: %u, y: %u, width: %u, height: %u ]\r\n",
                 bb.label, bb.value, bb.x, bb.y, bb.width, bb.height);
