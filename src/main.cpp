@@ -67,11 +67,6 @@ void setup() {
     
     // Ajustes del sensor
     sensor_t * s = esp_camera_sensor_get();
-    if (s->id.PID == OV3660_PID) {
-        s->set_vflip(s, 1); 
-        s->set_brightness(s, 1); 
-        s->set_saturation(s, 0); 
-    }
     s->set_vflip(s, 1); // Ajustar según orientación física
     s->set_brightness(s, 1);
     s->set_contrast(s, 1);
