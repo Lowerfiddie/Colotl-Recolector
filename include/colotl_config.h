@@ -110,4 +110,10 @@ void moverServos(int angle);
 void abrirServos();
 void setupServos();
 
+// --- FUNCIONES DEL WEB DEBUGGER ---
+void setupWebServer();
+void serverLoop();
+void webLog(String mensaje);
+void webLogPrintf(const char *format, ...);
+
 #endif // COLOTL_CONFIG_H

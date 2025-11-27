@@ -39,29 +39,26 @@ static camera_config_t camera_config = {
     .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
 };
 
-void webLog(String mensaje) {
-    Serial.println("[ESTADO]: " + mensaje);
-}
-
 void setup() {
     // Anti-Brownout
     #include "soc/soc.h"
     #include "soc/rtc_cntl_reg.h"
     WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
 
-    Serial.begin(115200);
+    //Serial.begin(115200);
     
     if(psramFound()){
-        Serial.println("\n--- PSRAM DETECTADA ---");
+        webLog("\n--- PSRAM DETECTADA ---");
         heap_caps_malloc_extmem_enable(0); 
     }
 
     setupMotores();
     setupServos();
+    setupWebServer();
 
     esp_err_t err = esp_camera_init(&camera_config);
     if (err != ESP_OK) {
-        Serial.printf("Error camara 0x%x\n", err);
+        webLogPrintf("Error camara 0x%x\n", err);
         return;
     }
     
@@ -69,8 +66,8 @@ void setup() {
     sensor_t * s = esp_camera_sensor_get();
     s->set_vflip(s, 0); // Ajustar según orientación física
     s->set_brightness(s, 0);
-    s->set_contrast(s, 1);
-    s->set_saturation(s, 2);
+    s->set_contrast(s, 0);
+    s->set_saturation(s, 0);
 
     // Buffer de Foto (Usando constantes de colotl_config.h)
     snapshot_buf = (uint8_t*)malloc(EI_CAMERA_RAW_FRAME_BUFFER_COLS * EI_CAMERA_RAW_FRAME_BUFFER_ROWS * EI_CAMERA_FRAME_BYTE_SIZE);
@@ -80,6 +77,7 @@ void setup() {
 }
 
 void loop() {
+    serverLoop();
     // EJECUCIÓN DE IA:
     // Llamamos a la función única que replica el comportamiento del ejemplo original
     if (estadoActual == ESPERAR_BASURA || estadoActual == ACERCARSE) {

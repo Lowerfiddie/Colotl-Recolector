@@ -28,7 +28,7 @@ static int ei_camera_get_data(size_t offset, size_t length, float *out_ptr)
 }
 
 void print_model_info() {
-    ei_printf("Edge Impulse Inferencing Demo\n");
+    webLog("Edge Impulse Inferencing Demo\n");
 }
 
 // Función wrapper que imita el flujo del loop() original
@@ -38,7 +38,7 @@ void run_inference_cycle(uint8_t* snapshot_buf) {
     // 1. CAPTURA DE IMAGEN (Lógica original ei_camera_capture)
     camera_fb_t *fb = esp_camera_fb_get();
     if (!fb) {
-        ei_printf("Camera capture failed\n");
+        webLog("Camera capture failed\n");
         return;
     }
 
@@ -47,7 +47,7 @@ void run_inference_cycle(uint8_t* snapshot_buf) {
     esp_camera_fb_return(fb);
 
     if (!converted) {
-        ei_printf("Conversion failed\n");
+        webLog("Conversion failed\n");
         return;
     }
 
@@ -74,16 +74,15 @@ void run_inference_cycle(uint8_t* snapshot_buf) {
     signal.get_data = &ei_camera_get_data;
 
     ei_impulse_result_t result = { 0 };
-    EI_IMPULSE_ERROR err = run_classifier(&signal, &result, false); // debug_nn = false
+    EI_IMPULSE_ERROR err = run_classifier(&signal, &result); // debug_nn = false
 
     if (err != EI_IMPULSE_OK) {
-        ei_printf("ERR: Failed to run classifier (%d)\n", err);
+        webLogPrintf("ERR: Failed to run classifier (%d)\n", err);
         return;
     }
 
     // 4. IMPRESIÓN DE RESULTADOS (Idéntico al original)
-    ei_printf("Predictions (DSP: %d ms., Classification: %d ms., Anomaly: %d ms.): \n",
-                result.timing.dsp, result.timing.classification, result.timing.anomaly);
+    webLogPrintf("Predicciones (DSP: %d ms, Clas: %d ms):", result.timing.dsp, result.timing.classification);
 
     // Resetear datos globales
     visionData.detectado = false; 
@@ -94,11 +93,10 @@ void run_inference_cycle(uint8_t* snapshot_buf) {
         ei_impulse_result_bounding_box_t bb = result.bounding_boxes[i];
         
         // Filtro de rango de confianza
-        if (bb.value >= 0.6) continue; 
+        if (bb.value >= 0.4) continue; 
         
-        ei_printf("  %s (%f) [ x: %u, y: %u, width: %u, height: %u ]\r\n",
-                bb.label, bb.value, bb.x, bb.y, bb.width, bb.height);
-        found = true;
+        webLogPrintf("%s (%.2f) [x:%u y:%u]", bb.label, bb.value, bb.x, bb.y);
+        found = true; 
 
         // Llenar estructura compartida (esto es lo único extra para que funcione tu robot)
         if (!visionData.detectado) {
@@ -111,11 +109,11 @@ void run_inference_cycle(uint8_t* snapshot_buf) {
         }
     }
     if (!found) {
-        ei_printf("    No objects detected\n");
+        webLog("    No objects detected\n");
     }
 #else
     for (uint16_t i = 0; i < EI_CLASSIFIER_LABEL_COUNT; i++) {
-        ei_printf("  %s: %.5f\r\n", ei_classifier_inferencing_categories[i], result.classification[i].value);
+        webLog("  %s: %.5f\r\n", ei_classifier_inferencing_categories[i], result.classification[i].value);
     }
 #endif
 }
