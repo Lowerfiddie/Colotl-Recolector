@@ -9,9 +9,7 @@ const int SERVOD_ANGULO_INICIAL = 180;
 void setupServos() {
   servoIzq.attach(myservoI);
   servoDer.attach(myservoD);
-
-  servoIzq.write(SERVOI_ANGULO_INICIAL);
-  servoDer.write(SERVOD_ANGULO_INICIAL);
+  abrirServos();
 }
 
 void moverServos(int angle) {
@@ -19,7 +17,7 @@ void moverServos(int angle) {
     int posInv = map(pos, 0, angle, 180, 180 - angle);
     servoIzq.write(pos);
     servoDer.write(posInv);
-    delay(120);
+    delay(15);
   }
 }
 

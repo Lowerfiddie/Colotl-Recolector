@@ -1,44 +1,54 @@
+#include <Arduino.h>
 #include "colotl_config.h"
 
 void setupMotores() {
-  pinMode(IN1, OUTPUT);
-  pinMode(IN2, OUTPUT);
-  pinMode(IN3, OUTPUT);
-  pinMode(IN4, OUTPUT);
+  // 1. Configuramos los 4 canales PWM
+  ledcSetup(PWM_CH_IN1, PWM_FREQ, PWM_RES);
+  ledcSetup(PWM_CH_IN2, PWM_FREQ, PWM_RES);
+  ledcSetup(PWM_CH_IN3, PWM_FREQ, PWM_RES);
+  ledcSetup(PWM_CH_IN4, PWM_FREQ, PWM_RES);
 
-  ledcSetup(PWM_CHANNEL, PWM_FREQUENCY, PWM_RESOLUTION);
-  ledcAttachPin(EN, PWM_CHANNEL);
+  // 2. Conectamos los canales a los pines físicos
+  ledcAttachPin(IN1, PWM_CH_IN1);
+  ledcAttachPin(IN2, PWM_CH_IN2);
+  ledcAttachPin(IN3, PWM_CH_IN3);
+  ledcAttachPin(IN4, PWM_CH_IN4);
+
   motores_detener();
 }
 
 void motores_detener() {
-  ledcWrite(PWM_CHANNEL, 0);
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, LOW);
+  // Poner todo a 0 frena los motores
+  ledcWrite(PWM_CH_IN1, 0);
+  ledcWrite(PWM_CH_IN2, 0);
+  ledcWrite(PWM_CH_IN3, 0);
+  ledcWrite(PWM_CH_IN4, 0);
 }
 
 void motores_avanzar() {
-  ledcWrite(PWM_CHANNEL, 120);
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
+  // Motor Izquierdo: Avanza
+  ledcWrite(PWM_CH_IN1, VELOCIDAD_BASE);
+  ledcWrite(PWM_CH_IN2, 0);
+
+  // Motor Derecho: Avanza
+  ledcWrite(PWM_CH_IN3, VELOCIDAD_BASE);
+  ledcWrite(PWM_CH_IN4, 0);
 }
 
 void motores_girarIzquierda() {
-  ledcWrite(PWM_CHANNEL, 120);
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
+  // Giro sobre su eje: Izquierda atrás, Derecha adelante
+  ledcWrite(PWM_CH_IN1, 0);
+  ledcWrite(PWM_CH_IN2, VELOCIDAD_BASE); // Retrocede
+
+  ledcWrite(PWM_CH_IN3, VELOCIDAD_BASE); // Avanza
+  ledcWrite(PWM_CH_IN4, 0);
 }
 
 void motores_girarDerecha() {
-  ledcWrite(PWM_CHANNEL, 120);
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, LOW);
+  // Giro sobre su eje: Izquierda adelante, Derecha atrás
+  ledcWrite(PWM_CH_IN1, VELOCIDAD_BASE); // Avanza
+  ledcWrite(PWM_CH_IN2, 0);
+
+  ledcWrite(PWM_CH_IN3, 0);
+  ledcWrite(PWM_CH_IN4, VELOCIDAD_BASE); // Retrocede
 }

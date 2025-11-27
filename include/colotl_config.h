@@ -74,18 +74,21 @@ extern bool tieneBasura; // Variable de estado para la lógica
 #define EI_CAMERA_FRAME_BYTE_SIZE           3
 
 // --- PINES MOTORES (PUENTE H) ---
-// ADVERTENCIA: En ESP32-CAM, el Pin 16 se usa a veces para la PSRAM.
-// Si la cámara falla o se reinicia, cambia este pin a 12 o 2.
-#define EN  16 
-
 #define IN1 12
 #define IN2 13
 #define IN3 14
 #define IN4 15
 
-#define PWM_CHANNEL 0
-#define PWM_FREQUENCY 5000
-#define PWM_RESOLUTION 8  // 0–255
+// Canales PWM (El ESP32 tiene 16, usamos 4 distintos)
+#define PWM_CH_IN1  0
+#define PWM_CH_IN2  1
+#define PWM_CH_IN3  2
+#define PWM_CH_IN4  3
+
+// Configuración PWM
+#define PWM_FREQ    5000 // 5 KHz es ideal para L298N
+#define PWM_RES     8    // 8 bits (0-255)
+#define VELOCIDAD_BASE 140 // Velocidad estándar (ajusta a tu gusto)
 
 // --- PINES SERVOS ---
 // Usamos pines que suelen estar libres si no usas la tarjeta SD
