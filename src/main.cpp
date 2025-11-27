@@ -5,6 +5,9 @@
 #include "colotl_config.h"
 #include "inference_handler.h"
 
+void setupServos();
+void setupMotores();
+
 // Configuraciones de imagen para la IA
 #define EI_CAMERA_RAW_FRAME_BUFFER_COLS           320
 #define EI_CAMERA_RAW_FRAME_BUFFER_ROWS           240
@@ -13,6 +16,8 @@
 // Variables Globales
 uint8_t *snapshot_buf; 
 static bool is_camera_init = false;
+Estado estadoActual = INICIALIZACION;
+bool tieneBasura = false;
 
 // --- CONFIGURACIÓN DE CÁMARA ---
 // (Mantenemos esto aquí porque es inicialización de hardware)
@@ -78,6 +83,9 @@ void setup() {
         Serial.println("ERROR CRÍTICO: No hay PSRAM.");
         return;
     }
+
+    setupMotores();
+    setupServos();
 
     // 2. Inicializar Cámara
     esp_err_t err = esp_camera_init(&camera_config);

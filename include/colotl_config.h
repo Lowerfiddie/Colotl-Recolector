@@ -2,6 +2,46 @@
 #define COLOTL_CONFIG_H
 
 #include "esp_camera.h"
+#include <ESP32Servo.h>
+
+// --- ESTRUCTURA PARA COMPARTIR DATOS ---
+// La cámara escribe aquí, el Main lee de aquí
+struct DatosVision {
+    bool detectado;     // ¿Vio algo?
+    float x;            // Centro X
+    float y;            // Centro Y
+    float h;            // Altura (para saber distancia)
+    float w;            // Ancho
+    String label;       // Qué es (botella, lata, etc)
+};
+
+// --- MÁQUINA DE ESTADOS ---
+enum Estado {
+  INICIALIZACION,
+  ESPERAR_BASURA,
+  ACERCARSE,
+  SUJETAR_BASURA,
+  IR_A_ZONA_DESCARGA,
+  DESCARGAR_BASURA,
+  REGRESAR_A_HOME
+};
+
+// Variables globales compartidas (externas)
+extern Estado estadoActual;
+extern Servo servoIzq;
+extern Servo servoDer;
+
+extern DatosVision visionData; 
+extern Estado estadoActual;
+extern Servo servoGarra; 
+extern bool tieneBasura; // Variable de estado para la lógica
+
+// --- CONSTANTES DE NAVEGACIÓN Y VISIÓN ---
+#define H_LEJOS    20  // Altura del objeto en pixeles (lejos)
+#define H_CAPTURA  80  // Altura del objeto en pixeles (listo para agarrar)
+
+#define CENTRO_IMG_X 48.0f // Mitad de 96
+#define ZONA_MUERTA  10.0f // Tolerancia para centrar
 
 // ==========================================
 // 1. CONFIGURACIÓN DEL SISTEMA
@@ -33,40 +73,38 @@
 #define EI_CAMERA_RAW_FRAME_BUFFER_ROWS     240
 #define EI_CAMERA_FRAME_BYTE_SIZE           3
 
-// ==========================================
-// 3. SERVOS (Pan & Tilt)
-// ==========================================
-// NOTA: La ESP32-CAM tiene pocos pines libres si usas la tarjeta SD.
-// Los pines 12, 13, 14, 15 suelen usarse para la SD.
-// Si NO usas SD, puedes usarlos para servos.
-#define SERVO_PAN_PIN         12  // Ejemplo (GPIO 12)
-#define SERVO_TILT_PIN        13  // Ejemplo (GPIO 13)
+// --- PINES MOTORES (PUENTE H) ---
+// ADVERTENCIA: En ESP32-CAM, el Pin 16 se usa a veces para la PSRAM.
+// Si la cámara falla o se reinicia, cambia este pin a 12 o 2.
+#define EN  16 
 
-// Límites de los servos (para evitar golpes mecánicos)
-#define SERVO_PAN_MIN         0
-#define SERVO_PAN_MAX         180
-#define SERVO_PAN_CENTER      90
+#define IN1 12
+#define IN2 13
+#define IN3 14
+#define IN4 15
 
-#define SERVO_TILT_MIN        45
-#define SERVO_TILT_MAX        135
-#define SERVO_TILT_CENTER     90
+#define PWM_CHANNEL 0
+#define PWM_FREQUENCY 5000
+#define PWM_RESOLUTION 8  // 0–255
 
-// ==========================================
-// 4. GPS (UART)
-// ==========================================
-// El GPS necesita puerto Serial (RX/TX).
-// Puedes usar Serial2 o SoftwareSerial en pines libres.
-#define GPS_RX_PIN            14  // Ejemplo (GPIO 14)
-#define GPS_TX_PIN            15  // Ejemplo (GPIO 15)
-#define GPS_BAUD_RATE         9600
+// --- PINES SERVOS ---
+// Usamos pines que suelen estar libres si no usas la tarjeta SD
+#define myservoI 2
+#define myservoD 4
 
-// ==========================================
-// 5. MOTORES (H-Bridge L298N / Driver)
-// ==========================================
-// Si necesitas muchos pines, considera usar un expansor I2C (PCA9685)
-// aquí definimos pines directos como ejemplo:
-#define MOTOR_LEFT_FWD        2   // Cuidado: GPIO 2 es pin de boot
-#define MOTOR_LEFT_BWD        4   // Cuidado: GPIO 4 es el Flash LED
-// ...etc
+// --- DECLARACIÓN DE FUNCIONES GLOBALES ---
+void webLog(String mensaje); // Para enviar texto a la web
+
+// Motores
+void motores_avanzar();
+void motores_detener();
+void motores_girarIzquierda();
+void motores_girarDerecha();
+void setupMotores();
+
+// Servos
+void moverServos(int angle);
+void abrirServos();
+void setupServos();
 
 #endif // COLOTL_CONFIG_H
